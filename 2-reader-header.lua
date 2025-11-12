@@ -55,10 +55,19 @@ local ITEMS_ORDER = {
     "spacer"
 }
 
+-- Separator styles
+local SEPARATOR_STYLES = {
+    "  ",
+    " • ",
+    " - ",
+    " ○ ",
+}
+
 -- Default header items
 local header_defaults = {
     enabled = true,
     items = {"time", "battery", "spacer", "percentage"},
+    separator_style = 1,
     item_separator = "  ",
 }
 
@@ -69,7 +78,8 @@ local function getHeaderSettings()
         G_reader_settings:saveSetting("custom_header", settings)
     end
     if not settings.items then settings.items = {"time", "battery", "spacer", "percentage"} end
-    if not settings.item_separator then settings.item_separator = "  " end
+    if not settings.separator_style then settings.separator_style = 1 end
+    settings.item_separator = SEPARATOR_STYLES[settings.separator_style]
     if settings.enabled == nil then settings.enabled = true end
     return settings
 end
@@ -97,6 +107,12 @@ local function toggleItem(items_list, item_key)
         end
     end
     table.insert(items_list, item_key)
+end
+
+local function setSeparatorStyle(style_index)
+    local h_settings = getHeaderSettings()
+    h_settings.separator_style = style_index
+    saveHeaderSettings(h_settings)
 end
 
 local _ReaderView_paintTo_orig = ReaderView.paintTo
@@ -551,6 +567,35 @@ function ReaderMenu:setUpdateItemTable()
             end,
         }
     end
+
+    -- Helper function to create separator style selector
+    local function createSeparatorStyleSelector()
+        return {
+            text = _("Separator style"),
+            sub_item_table = (function()
+                local items = {}
+                for i, style in ipairs(SEPARATOR_STYLES) do
+                    local style_name = style
+                    if style == "  " then style_name = "Double space" end
+                    table.insert(items, {
+                        text = style_name,
+                        checked_func = function()
+                            local h_settings = getHeaderSettings()
+                            return h_settings.separator_style == i
+                        end,
+                        callback = function(touchmenu_instance)
+                            setSeparatorStyle(i)
+                            touchmenu_instance:updateItems()
+                            if self.ui and self.ui.document then
+                                UIManager:setDirty(self.ui.dialog, "ui")
+                            end
+                        end,
+                    })
+                end
+                return items
+            end)(),
+        }
+    end
     
     -- Main Header submenu
     table.insert(menu_order.setting, "----------------------------")
@@ -576,6 +621,7 @@ function ReaderMenu:setUpdateItemTable()
         sub_item_table = {
             createItemsSelector(),
             createReorderMenu(),
+            createSeparatorStyleSelector(),
         },
     }
     
