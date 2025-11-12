@@ -8,6 +8,7 @@ A highly configurable header for KOReader that displays customizable information
 
 - **various display items** including time, battery, progress, chapter info, and more
 - **Flexible space separator** - push items to left/right corners or distribute them across the bar
+- **Customizable separator styles** - choose from different characters to separate header items
 - **Item reordering** - easily arrange items using the built-in SortWidget
 - **Tap to toggle** - tap the top of the screen to show/hide the bar
 - **Multi-select items** - display multiple pieces of information simultaneously
@@ -54,8 +55,8 @@ local header_font_color = Blitbuffer.COLOR_BLACK  -- Text color
 local header_top_padding = Size.padding.small -- Top padding
 local header_use_book_margins = true          -- Use book margins
 local header_margin = Size.padding.large      -- Manual margin (if not using book margins)
-local item_separator = "  "                   -- Separator between items (default: two spaces)
 ```
+Separator style can be changed via the Header menu.
 ## Requirements
 
 - KOReader v2024.04 or later (recommended)
